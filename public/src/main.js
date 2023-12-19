@@ -1,9 +1,9 @@
-import * as THREE from 'three';
-import { LoadGLTFByPath } from './Helpers/ModelHelper.js';
-import { OrbitControls } from 'https://cdn.skypack.dev/three@0.129.0/examples/jsm/controls/OrbitControls.js';
+import * as THREE from "three";
+import { LoadGLTFByPath } from "./Helpers/ModelHelper.js";
+import { OrbitControls } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/controls/OrbitControls.js";
 
 let renderer = new THREE.WebGLRenderer({
-  canvas: document.querySelector('#background'),
+  canvas: document.querySelector("#background"),
   antialias: true,
 });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -28,7 +28,7 @@ LoadGLTFByPath(scene)
     retrieveListOfCameras(scene);
   })
   .catch((error) => {
-    console.error('Error loading GLTF scene:', error);
+    console.error("Error loading GLTF scene:", error);
   });
 
 function retrieveListOfCameras(scene) {
@@ -45,24 +45,40 @@ function retrieveListOfCameras(scene) {
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enablePan = false;
 
-  document.addEventListener('mousedown', (event) => {
+  document.addEventListener("mousedown", (event) => {
     if (event.button === 1) {
       controls.enabled = false;
     }
   });
 
-  document.addEventListener('mouseup', (event) => {
+  document.addEventListener("mouseup", (event) => {
     if (event.button === 1) {
       controls.enabled = true;
     }
   });
 
-  document.addEventListener('mousemove', (event) => {
+  document.addEventListener("mousemove", (event) => {
+    console.log("Shift Key Pressed:", event.shiftKey);
+    console.log("Movement X:", event.movementX);
+    console.log("Movement Y:", event.movementY);
+    console.log("Mouse moved");
+
     if (event.buttons === 4) {
       const movementX = event.movementX || event.mozMovementX || 0;
       const movementY = event.movementY || event.mozMovementY || 0;
-      camera.position.x -= movementX * 0.01;
-      camera.position.y += movementY * 0.01;
+
+      // Check if the shift key is pressed
+      if (event.shiftKey) {
+        // Lock camera movement on the X-axis
+        camera.position.x = Math.max(
+          -10,
+          Math.min(10, camera.position.x - movementX * 0.01)
+        );
+      } else {
+        // Regular camera movement
+        camera.position.x -= movementX * 0.01;
+        camera.position.y += movementY * 0.01;
+      }
     }
   });
 
@@ -78,6 +94,5 @@ function updateCameraAspect(camera) {
 
 function animate() {
   requestAnimationFrame(animate);
-
   renderer.render(scene, camera);
 }
